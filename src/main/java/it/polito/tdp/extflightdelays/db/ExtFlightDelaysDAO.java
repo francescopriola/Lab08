@@ -10,6 +10,7 @@ import java.util.List;
 
 import it.polito.tdp.extflightdelays.model.Airline;
 import it.polito.tdp.extflightdelays.model.Airport;
+import it.polito.tdp.extflightdelays.model.CoppiaID;
 import it.polito.tdp.extflightdelays.model.Flight;
 
 public class ExtFlightDelaysDAO {
@@ -80,6 +81,33 @@ public class ExtFlightDelaysDAO {
 						rs.getDouble("ELAPSED_TIME"), rs.getInt("DISTANCE"),
 						rs.getTimestamp("ARRIVAL_DATE").toLocalDateTime(), rs.getDouble("ARRIVAL_DELAY"));
 				result.add(flight);
+			}
+
+			conn.close();
+			return result;
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			System.out.println("Errore connessione al database");
+			throw new RuntimeException("Error Connection Database");
+		}
+	}
+	
+	public List<CoppiaID> loadFlightDistance(){
+		String sql = "Select `ORIGIN_AIRPORT_ID`, `DESTINATION_AIRPORT_ID`, `DISTANCE` "
+				+ "From flights";
+		List<CoppiaID> result = new LinkedList<CoppiaID>();
+		try {
+			Connection conn = ConnectDB.getConnection();
+			PreparedStatement st = conn.prepareStatement(sql);
+			ResultSet rs = st.executeQuery();
+
+			while (rs.next()) {
+				int idPartenza = rs.getInt("origin_airport_id");
+				int idArrivo = rs.getInt("destination_airport_id");
+				Double distanza = rs.getDouble("distance");
+ 				CoppiaID c = new CoppiaID(idPartenza, idArrivo, distanza);
+ 				result.add(c);
 			}
 
 			conn.close();
